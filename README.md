@@ -32,9 +32,20 @@ make test       # Run basic test
 
 | Target | Size | SIMD | Use case |
 |--------|------|------|----------|
-| `liblcvdb.a` | 42 KB | AVX2 | Native x86 server/desktop |
+| `liblcvdb.a` | 44 KB | AVX2 | Native x86 server/desktop |
 | `liblcvdb_scalar.a` | 40 KB | None | ARM, RISC-V, any CPU |
 | `lcvdb.wasm` | TBD | WASM SIMD128 | Browser, Edge, Cloudflare Workers |
+
+## Benchmark (AVX2, single-thread)
+
+| Scale | Dim | Insert (vec/s) | Search (ms/q) | QPS | R@1 |
+|-------|-----|---------------|---------------|-----|-----|
+| 1K | 768 | 18,443 | 0.150 | 6,663 | 100% |
+| 10K | 768 | 17,859 | 0.258 | 3,870 | 100% |
+| 65K | 768 | 18,284 | 1.147 | 872 | 100% |
+| 1K | 1024 | 14,187 | 0.185 | 5,409 | 100% |
+| 10K | 1024 | 13,411 | 0.334 | 2,997 | 100% |
+| 65K | 1024 | 13,701 | 0.993 | 1,007 | 100% |
 
 ## The Science
 
