@@ -1,6 +1,9 @@
 /* lcvdb.h — Public API for the LCVDB embeddable vector search library.
  *
- * The smallest vector search engine. 33KB. Zero configuration. 100% recall.
+ * The smallest vector search engine. 42KB. Zero configuration. 100% recall.
+ *
+ * Thread safety: NOT thread-safe. External synchronization required
+ * for concurrent access from multiple threads.
  *
  * Usage:
  *   lcvdb_t *db = lcvdb_create(768, 100000);
@@ -25,7 +28,7 @@ typedef struct lcvdb lcvdb_t;
 
 /* Create a new database.
  * dim: vector dimensions (must be a multiple of 64)
- * capacity: initial capacity (grows automatically) */
+ * capacity: initial capacity (doubles automatically when full) */
 lcvdb_t *lcvdb_create(uint16_t dim, uint32_t capacity);
 
 /* Free all memory. */
@@ -50,7 +53,7 @@ lcvdb_t *lcvdb_load(const char *path);
 /* Get the number of vectors in the database. */
 uint32_t lcvdb_count(const lcvdb_t *db);
 
-/* Delete a vector by ID. */
+/* Delete a vector by external ID (the ID passed to lcvdb_insert). */
 void lcvdb_delete(lcvdb_t *db, uint32_t id);
 
 #ifdef __cplusplus

@@ -62,6 +62,33 @@ int main(void) {
     lcvdb_free(db);
     unlink("/tmp/lcvdb_test.db");
 
+    /* Test growable capacity */
+    printf("\n--- Grow test ---\n");
+    db = lcvdb_create(128, 10); /* tiny initial capacity */
+    if (!db) { printf("FAIL: create small\n"); return 1; }
+    for (int i = 0; i < 100; i++) {
+        float vec[128];
+        uint32_t s = (uint32_t)(i + 1000);
+        for (int d = 0; d < 128; d++) { s = s * 1103515245 + 12345; vec[d] = ((float)(s >> 16) / 32768.0f) - 1.0f; }
+        uint32_t nid = lcvdb_insert(db, (uint32_t)(i + 1000), vec);
+        if (nid == UINT32_MAX) { printf("FAIL: insert %d during grow\n", i); return 1; }
+    }
+    printf("Inserted 100 into capacity-10 db: count=%u (grew to fit)\n", lcvdb_count(db));
+    if (lcvdb_count(db) != 100) { printf("FAIL: expected 100, got %u\n", lcvdb_count(db)); return 1; }
+
+    /* Test external ID delete */
+    lcvdb_delete(db, 1050); /* delete by external ID */
+    /* Search for the deleted vector — should not be top result */
+    {
+        float vec[128];
+        uint32_t s = 1050;
+        for (int d = 0; d < 128; d++) { s = s * 1103515245 + 12345; vec[d] = ((float)(s >> 16) / 32768.0f) - 1.0f; }
+        found = lcvdb_search(db, vec, 1, ids, scores);
+        printf("After delete 1050: search found=%d, top_id=%u (should NOT be 1050's node)\n", found, ids[0]);
+    }
+
+    lcvdb_free(db);
+
     printf("\nPASS\n");
     return 0;
 }
