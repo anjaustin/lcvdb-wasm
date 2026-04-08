@@ -87,7 +87,8 @@ static inline void sce_xor_transport(const uint8_t *addr, const uint8_t *delta,
 
 static inline void sce_encode_trit(const uint8_t *nibble_fp, int dim,
                                     uint8_t *trit_out) {
-    for (int b = 0; b < dim / 4; b++) {
+    int trit_out_bytes = dim / 4;
+    for (int b = 0; b < trit_out_bytes; b++) {
         uint8_t byte = 0;
         for (int t = 0; t < 4; t++) {
             int d = b * 4 + t;

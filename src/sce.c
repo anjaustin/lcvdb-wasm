@@ -38,12 +38,14 @@ int sce_search(
     int fpb = (dim + 1) / 2;
 
     /* ── Stage 1: Encode query ── */
+    int qtrit_size = ((dim / 4 + 31) / 32) * 32; /* match trit_bytes alignment */
     uint8_t *qpacked = (uint8_t *)malloc(vb);
     uint8_t *qfp = (uint8_t *)malloc(fpb);
     uint8_t *qtrit = NULL;
-    if (!qpacked || !qfp || (qtrit = (uint8_t *)lcvdb_aligned_alloc(32, SCE_TRIT_BYTES_768)) == NULL) {
+    if (!qpacked || !qfp || (qtrit = (uint8_t *)lcvdb_aligned_alloc(32, qtrit_size)) == NULL) {
         free(qpacked); free(qfp); free(qtrit); return 0;
     }
+    memset(qtrit, 0, qtrit_size);
     float qscale;
 
     lcvdbt_pack_f32_mtf7(query, qpacked, dim, &qscale);
@@ -233,12 +235,14 @@ int sce_search_parallel(
     /* Stage 1: Encode query (heap-allocated for 32-byte alignment on all libc) */
     int vb = LCVDBT_QUANT_VEC_BYTES(dim, LCVDBT_QUANT_MTF7);
     int fpb = (dim + 1) / 2;
+    int qtrit_size = ((dim / 4 + 31) / 32) * 32;
     uint8_t *qpacked = (uint8_t *)malloc(vb);
     uint8_t *qfp = (uint8_t *)malloc(fpb);
     uint8_t *qtrit = NULL;
-    if ((qtrit = (uint8_t *)lcvdb_aligned_alloc(32, SCE_TRIT_BYTES_768)) == NULL) {
+    if ((qtrit = (uint8_t *)lcvdb_aligned_alloc(32, qtrit_size)) == NULL) {
         free(qpacked); free(qfp); return 0;
     }
+    memset(qtrit, 0, qtrit_size);
     float qscale;
 
     lcvdbt_pack_f32_mtf7(query, qpacked, dim, &qscale);
